@@ -32,7 +32,7 @@ class CompanyController extends Controller
 
     public function index(){
 
-        $company                                           = $this->BaseModel::sortable()->paginate(1);
+        $company                                           = $this->BaseModel::get();
         $this->arr_view_data['company']                    = $company;
         $this->arr_view_data['module_url_path']            = $this->module_url_path;
         $this->arr_view_data['logo_image_base_img_path']   = $this->logo_image_base_img_path;
@@ -251,8 +251,8 @@ class CompanyController extends Controller
         
             unlink($image_path);
         }
-
-        $employee->delete();
+        
+        $employee->softDeletes();
 
         return back()->with('success','Record deleted Successfully');
        

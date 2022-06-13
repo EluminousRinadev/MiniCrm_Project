@@ -41,7 +41,7 @@
                                     <table id="datatable" class="table table-bordered">
                                         <thead>
                                         <tr>
-                          <th>@sortablelink('id')</th>
+                          <th>Id</th>
    
                           <th> First Name </th>
                           <th> Last Name </th>
