@@ -18,38 +18,38 @@ class CompanyController extends Controller
         $this->Employee                             = new Employee();
         $this->Company                              = new Company();
         $this->BaseModel                            = $this->Company;
-        $this->arr_view_data                        = [];
-        $this->module_title                         = "Company";
-        $this->module_view_folder                   = "admin.company";
-        $this->module_url_path                      =  url(config('app.project.admin_panel_slug').'/company');
+        $this->arrViewData                          = [];
+        $this->moduleTitle                          = "Company";
+        $this->moduleViewFolder                     = "admin.company";
+        $this->moduleUrlPath                        =  url(config('app.project.admin_panel_slug').'/company');
         $this->logo_image_public_path               =  url('/').'/storage/app/public/';
         $this->logo_image_base_img_path             =  base_path().'/storage/app/public/';
 
        
     }
 
-    // Disply Records
+       //To show List of Company
 
     public function index(){
 
-        $company                                           = $this->BaseModel::get();
-        $this->arr_view_data['company']                    = $company;
-        $this->arr_view_data['module_url_path']            = $this->module_url_path;
-        $this->arr_view_data['logo_image_base_img_path']   = $this->logo_image_base_img_path;
-        $this->arr_view_data['logo_image_public_path']     = $this->logo_image_public_path;
+        $company                                         = $this->BaseModel::get();
+        $this->arrViewData['company']                    = $company;
+        $this->arrViewData['moduleUrlPath']              = $this->moduleUrlPath;
+        $this->arrViewData['logo_image_base_img_path']   = $this->logo_image_base_img_path;
+        $this->arrViewData['logo_image_public_path']     = $this->logo_image_public_path;
 
-        return view($this->module_view_folder.'.index',$this->arr_view_data)->with('number', 1);
+        return view($this->moduleViewFolder.'.index',$this->arrviewData)->with('number', 1);
         
     }
 
-    // Create Records
+    //To Create Company of Records  
 
-    public function create(){
+     public function create(){
 
-        return view($this->module_view_folder.'.create');
+        return view($this->moduleViewFolder.'.create');
     }
 
-    // stored Records
+     // To Store Company of Records  
     public function store(Request $request){
        
         
@@ -61,20 +61,18 @@ class CompanyController extends Controller
      
     
         $validator = Validator::make($request->all(),$arr_rules);
-        if($validator->fails())
-        {
-     
-        
-            return Redirect::back()->withErrors($validator);
-        
-
+        if($validator->fails()){
+        return Redirect::back()->withErrors($validator);
         }
-
+    
         $email    = $request->input('email');
-        $is_exist = $this->BaseModel->where('email',$email)
+        $isExist = $this->BaseModel->where('email',$email)
                                     ->count();
-        if($is_exist > 0)
+
+   
+        if($isExist > 0)
         {
+          
             return back()->with('error','Email id already exist.');
       
         }
@@ -82,20 +80,20 @@ class CompanyController extends Controller
         if($request->hasFile('logo'))
         {
 
-            $file_name      = $request->input('logo');
-            $file_extension = strtolower($request->file('logo')->getClientOriginalExtension());
+            $fileName      = $request->input('logo');
+            $fileExtension = strtolower($request->file('logo')->getClientOriginalExtension());
 
            
              //image validation
-            if(in_array($file_extension,['png','jpg','jpeg']))
+            if(in_array($fileExtension,['png','jpg','jpeg']))
             {
 
-                 $file_name = time().'.'.$request->logo->extension();  
-                 $isUpload  = $request->file('logo')->move($this->logo_image_base_img_path,$file_name);
+                 $fileName = time().'.'.$request->logo->extension();  
+                 $isUpload  = $request->file('logo')->move($this->logo_image_base_img_path,$fileName);
 
              if($isUpload)
                 {
-                     $arr_data['logo'] = $file_name;
+                     $arr_data['logo'] = $fileName;
                 }
             }
             else
@@ -125,7 +123,8 @@ class CompanyController extends Controller
        
  
     }
-    // Edit Records
+     //To Edit Company of Records  
+
     public function edit($enc_id){
 
         $id           = base64_decode($enc_id);
@@ -143,11 +142,11 @@ class CompanyController extends Controller
         $this->arr_view_data['logo_image_public_path']     =  $this->logo_image_public_path;
 
 
-    return view($this->module_view_folder.'.edit',$this->arr_view_data);
+    return view($this->moduleViewFolder.'.edit',$this->arr_view_data);
    
 
     }
-    // Update Records
+       //To Edit Update of Records  
     public function update(Request $request){
 
     
@@ -237,7 +236,7 @@ class CompanyController extends Controller
 
     }
 
-    // Delete Records
+     //To Delete Company of Records
 
     public function delete($enc_id){
 
@@ -252,12 +251,42 @@ class CompanyController extends Controller
             unlink($image_path);
         }
         
-        $employee->softDeletes();
+        $employee->delete();
 
         return back()->with('success','Record deleted Successfully');
        
     }
+     //To Activate Company of Records  
 
+    public function deactive($enc_id){
+    
+        $id         = base64_decode($enc_id);
+        $status     = $this->BaseModel->where('id',$id)->update(['status'=>'1']);
+      
+        if($status){ 
+            return back()->with('success','Record updated successfully');
+        }else{
+            return back()->with('error','Problem occured while updating');
+        }
+
+        return redirect()->back();
+    }
+
+    //To Activate Employee of Records 
+    public function active($enc_id){
+
+        $id         = base64_decode($enc_id);
+        $status     = $this->BaseModel->where('id',$id)->update(['status'=>'0']);
+      
+        if($status) { 
+            return back()->with('success','Record Updated successfully');
+        }
+        else{
+            return back()->with('error','Problem occured while updating');
+        }
+
+        return redirect()->back();
+    }
 
 
 

@@ -24,7 +24,9 @@ class Employee extends Model
 
     public function company(){
 
-     return   $this->belongsTo('\App\Models\Company','company_id','id');
+     return   $this->belongsTo('\App\Models\Company','company_id','id')->withDefault([
+        'name' => 'Not Avail'
+    ]);
 
 
     }

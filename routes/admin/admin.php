@@ -20,6 +20,8 @@
 			Route::post('/store',[App\Http\Controllers\Admin\EmployeeController::class, 'store'])->name('employee.store');
 			Route::get('/delete/{id}',[App\Http\Controllers\Admin\EmployeeController::class, 'delete'])->name('employee.delete');
 			Route::any('/edit/{id}',[App\Http\Controllers\Admin\EmployeeController::class, 'edit'])->name('employee.edit');
+			Route::any('/active/{id}',[App\Http\Controllers\Admin\EmployeeController::class, 'active'])->name('employee.active');
+			Route::any('/deactive/{id}',[App\Http\Controllers\Admin\EmployeeController::class, 'deactive'])->name('employee.deactive');
 			Route::any('/update',[App\Http\Controllers\Admin\EmployeeController::class, 'update'])->name('employee.update');
 		
 			
@@ -37,6 +39,8 @@
 			Route::post('/store',[App\Http\Controllers\Admin\CompanyController::class, 'store'])->name('company.store');
 			Route::get('/delete/{id}',[App\Http\Controllers\Admin\CompanyController::class, 'delete'])->name('company.delete');
 			Route::any('/edit/{id}',[App\Http\Controllers\Admin\CompanyController::class, 'edit'])->name('company.edit');
+			Route::any('/active/{id}',[App\Http\Controllers\Admin\CompanyController::class, 'active'])->name('company.active');
+			Route::any('/deactive/{id}',[App\Http\Controllers\Admin\CompanyController::class, 'deactive'])->name('company.deactive');
 			Route::any('/update',[App\Http\Controllers\Admin\CompanyController::class, 'update'])->name('company.update');
 		
 			

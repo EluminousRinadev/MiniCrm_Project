@@ -19,37 +19,37 @@ class EmployeeController extends Controller
         $this->Employee           = new Employee();
         $this->BaseModel          = $this->Employee;
         $this->Company            = new Company();
-        $this->arr_view_data      = [];
+        $this->arrViewData      = [];
         $this->module_title       = "Employee";
-        $this->module_view_folder = "admin.employee";
-        $this->module_url_path    =  url(config('app.project.admin_panel_slug').'/employee');
+        $this->moduleViewFolder = "admin.employee";
+        $this->moduleUrlPath    =  url(config('app.project.admin_panel_slug').'/employee');
        
 
 
     }
 
-    //Display Records
+    //To show List of Employee 
     
     public function index(){
 
-        $employee                               = $this->BaseModel::with('company')->sortable()->paginate(2);
-        $this->arr_view_data['employee']        = $employee;
-        $this->arr_view_data['module_url_path'] = $this->module_url_path;
+        $employee                               = $this->BaseModel::with('company')->get();
+        $this->arrViewData['employee']          = $employee;
+        $this->arrViewData['moduleUrlPath']     = $this->moduleUrlPath;
 
-        return view($this->module_view_folder.'.index',$this->arr_view_data)->with('number', 1);
+        return view($this->moduleViewFolder.'.index',$this->arrViewData)->with('number', 1);
         
     }
-    // Create Records  
+    //To Create Employee of Records  
 
     public function create(){
 
         $company                               = $this->Company::get();
-        $this->arr_view_data['company']        = $company;
+        $this->arrViewData['company']        = $company;
 
-        return view($this->module_view_folder.'.create',$this->arr_view_data);
+        return view($this->moduleViewFolder.'.create',$this->arrViewData);
     }
 
-    // Store Records  
+    // To Store Employee of Records  
 
     public function store(Request $request){
         
@@ -69,9 +69,9 @@ class EmployeeController extends Controller
         }
         
         $email    = $request->input('email');
-        $is_exist = $this->BaseModel->where('email',$email)
+        $isExist  = $this->BaseModel->where('email',$email)
                                     ->count();
-        if($is_exist > 0)
+        if($isExist > 0)
         {
             return back()->with('error','Email id already exist.');
       
@@ -101,7 +101,7 @@ class EmployeeController extends Controller
  
     }
 
-      // Edit Records  
+      //To Edit Employee of Records  
 
     public function edit($enc_id){
 
@@ -115,16 +115,16 @@ class EmployeeController extends Controller
         }
 
         $company                               = $this->Company::get();
-        $this->arr_view_data['arr_employee']   = $arr_employee;
-        $this->arr_view_data['company']        =  $company;
+        $this->arrViewData['arr_employee']   = $arr_employee;
+        $this->arrViewData['company']        =  $company;
         
 
-        return view($this->module_view_folder.'.edit',$this->arr_view_data);
+        return view($this->moduleViewFolder.'.edit',$this->arrViewData);
    
 
     }
 
-     // Update Records  
+     //To Update Employee of Records  
 
     public function update(Request $request){
 
@@ -140,18 +140,16 @@ class EmployeeController extends Controller
         $validator = Validator::make($request->all(),$arr_rules);
         if($validator->fails())
         {
-    
-             return Redirect::back()->withErrors($validator);
-    
+            return Redirect::back()->withErrors($validator);
         }
         
         $id = base64_decode($request->input('enc_id'));
 
         $email    = $request->input('email');
-        $is_exist = $this->BaseModel->where('email',$email)
+        $isExist = $this->BaseModel->where('email',$email)
                                     ->where('id','<>',$id)
                                     ->count();
-        if($is_exist > 0)
+        if($isExist > 0)
         {
             return back()->with('error','Email id already exist.');
     
@@ -180,7 +178,7 @@ class EmployeeController extends Controller
 
     }
 
-      // Delete Records  
+      //To Delete Employee of Records  
 
     public function delete($enc_id){
 
@@ -192,6 +190,40 @@ class EmployeeController extends Controller
         return back()->with('success','Record deleted Successfully');
        
     }
+     //To Activate Employee of Records  
+    public function deactive($enc_id){
+    
+        $id         = base64_decode($enc_id);
+        $status     = $this->BaseModel->where('id',$id)->update(['status'=>'1']);
+      
+        if($status){ 
+            return back()->with('success','Record updated successfully');
+        }else{
+            return back()->with('error','Problem occured while updating');
+        }
 
-   
+        return redirect()->back();
+    }
+
+     //To Deactivate Employee of Records  
+
+    public function active($enc_id){
+
+        $id         = base64_decode($enc_id);
+        $status     = $this->BaseModel->where('id',$id)->update(['status'=>'0']);
+      
+        if($status) { 
+            return back()->with('success','Record Updated successfully');
+        }
+        else{
+            return back()->with('error','Problem occured while updating');
+        }
+
+        return redirect()->back();
+    }
+
+
+
+
+  
 }
