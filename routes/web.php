@@ -28,6 +28,9 @@ Route::get('/clear_cache', function() {
 
 Route::get('/admin',[App\Http\Controllers\Admin\AuthController::class, 'login'])->name('login');
 
+Route::get('stripe', [App\Http\Controllers\Front\StripePaymentController::class, 'stripe']);
+Route::post('stripe',[App\Http\Controllers\Front\StripePaymentController::class, 'stripePost'])->name('stripe.post');
+
 
 Route::get('logout',[App\Http\Controllers\Admin\AuthController::class, 'logout']);
 

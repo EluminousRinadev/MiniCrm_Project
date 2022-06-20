@@ -116,7 +116,7 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: "{{ $moduleUrlPath}}/load_data",
+            url: "{{ $moduleUrlPath}}/loadData",
             data: function(e) {
                 e["column_filter[q_first_name]"] = $("input[name='q_first_name']").val(),
                     e["column_filter[q_last_name]"] = $("input[name='q_last_name']").val(),
@@ -168,14 +168,14 @@ $(document).ready(function() {
 
             {
                 render: function(data, type, row, meta) {
-                    return row.status_btn;
+                    return row.statusBtn;
                 },
                 orderable: false,
                 searchable: true
             },
             {
                 render: function(data, type, row, meta) {
-                    return row.action_btn;
+                    return row.actionBtn;
                 },
                 orderable: false,
                 searchable: false

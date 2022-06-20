@@ -4,13 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Employee;
-use App\Models\Company;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Falsh;
 use Illuminate\Support\Facades\Redirect;
+use App\Imports\CompanyImport;
+use App\Exports\CompanyExport;
+use Maatwebsite\Excel\Facades\Excel;
+// Models
+use App\Models\Employee;
+use App\Models\Company;
+// plugins
 use File;
 use DataTables;
+
+
 
 class CompanyController extends Controller
 {
@@ -44,85 +51,86 @@ class CompanyController extends Controller
 
     public function load_data(Request $request)
     {
-        $arr_order = $request->input('order', null);
+        $arrOrder = $request->input('order', null);
         $search    = $request->input('column_filter', null);
         
-        $order_by_column = 'id';
-        $order_by_type   = 'ASC';
-        if(isset($arr_order[0]['column']) && isset($request->input('columns')[$arr_order[0]['column']]['name'])){   
-            $order_by_type   = $arr_order[0]['dir'] ?? 'DESC';
-            $order_by_column = $request->input('columns')[$arr_order[0]['column']]['name'];
+        $orderByColumn = 'id';
+        $orderByType   = 'ASC';
+        
+        if(isset($arrOrder[0]['column']) && isset($request->input('columns')[$arrOrder[0]['column']]['name'])){   
+             $orderByType    = $arrOrder[0]['dir'] ?? 'DESC';
+            $orderByColumn   = $request->input('columns')[$arrOrder[0]['column']]['name'];
         }
-        $obj_data = $this->BaseModel;
+        $objData = $this->BaseModel;
        
 
         if(isset($search['q_name']) && $search['q_name']!='')
         {
-            $search_term = $search['q_name'];
-            $obj_data = $obj_data->where('name', 'like', '%'.$search_term.'%');
+            $searchTerm = $search['q_name'];
+            $objData = $objData->where('name', 'like', '%'. $searchTerm.'%');
         }
 
        
         if(isset($search['q_email']) && $search['q_email']!='')
         {
-            $search_term = $search['q_email'];
-            $obj_data = $obj_data->where('email', 'like', '%'.$search_term.'%');
+             $searchTerm = $search['q_email'];
+            $objData     = $objData->where('email', 'like', '%'. $searchTerm.'%');
 
           
         }
 
         if(isset($search['q_website']) && $search['q_website']!='')
         {
-            $search_term = $search['q_website'];
-            $obj_data = $obj_data->where('website', 'like', '%'.$search_term.'%');
+             $searchTerm = $search['q_website'];
+            $objData = $objData->where('website', 'like', '%'. $searchTerm.'%');
 
           
         }
         
         if(isset($search['q_status']) && $search['q_status']!='')
         {
-            $search_term = $search['q_status'];
-            $obj_data = $obj_data->where('status', '=', $search_term);
+             $searchTerm = $search['q_status'];
+             $objData    = $objData->where('status', '=',  $searchTerm);
         }
         
-        $obj_data        = $obj_data->orderBy($order_by_column,$order_by_type);
-        $json_result     = DataTables::of($obj_data)->make(true);
-        $obj_json_result = $json_result->getData();
+        $objData         = $objData->orderBy($orderByColumn, $orderByType );
+        $jsonResult      = DataTables::of($objData)->make(true);
+        $objJsonResult   = $jsonResult->getData();
         
-        if(isset($obj_json_result->data) && sizeof($obj_json_result->data)>0)
+        if(isset($objJsonResult->data) && sizeof($objJsonResult->data)>0)
         {
-            foreach ($obj_json_result->data as $key => $data) 
+            foreach ($objJsonResult->data as $key => $data) 
             {
-                $status_btn = '';
+                $statusBtn = '';
                 if($data->status != null && $data->status == "0")
                 {   
 
                     
-                    $status_btn = ' <a href="'.$this->moduleUrlPath.'/active/'.base64_encode($data->id).'"
+                    $statusBtn = ' <a href="'.$this->moduleUrlPath.'/active/'.base64_encode($data->id).'"
                     onclick="return confirm_action(this,event,\'Do you really want to activate this record ?\')"><button
                         type="button" class="btn btn-primary btn-sm"
-                        style="background-color: #208336;">DeActive </button><a>';
+                        style="background-color: #bd0f20;" >DeActive </button><a>';
                     
                    
                 }
                 elseif($data->status != null && $data->status == "1")
                 {
              
-                $status_btn = ' <a href="'.$this->moduleUrlPath.'/deactive/'.base64_encode($data->id).'"
+                $statusBtn = ' <a href="'.$this->moduleUrlPath.'/deactive/'.base64_encode($data->id).'"
                 onclick="return confirm_action(this,event,\'Do you really want to inactivate this record ?\')"><button
                 type="button" class="btn btn-primary btn-sm"
-                style="background-color: #bd0f20;">Active
+                style="background-color: #208336;">Active
                  </button><a>';
                     
              
                 }
 
-                $action_btn = '-';
+                $actionBtn = '-';
 
-                $edit_href  = $this->moduleUrlPath.'/edit/'.base64_encode($data->id);
-                $delete_href  = $this->moduleUrlPath.'/delete/'.base64_encode($data->id);
+                $editHref  = $this->moduleUrlPath.'/edit/'.base64_encode($data->id);
+                $deleteHref  = $this->moduleUrlPath.'/delete/'.base64_encode($data->id);
 
-                $action_btn = '<a class="mb-6 btn-floating waves-effect waves-light brown darken-4" href="'.$edit_href.'" title="Edit"><i style="font-size:24px color: #000000;" class="fas">&#xf303;</i></a><br><a class="mb-6 btn-floating waves-effect waves-light brown darken-4" href="'.$delete_href.'" title="Edit"><i class="fa fa-trash" aria-hidden="true" style="color:#bd251f;"></i></a>';
+                $actionBtn = '<a class="mb-6 btn-floating waves-effect waves-light brown darken-4" href="'.$editHref.'" title="Edit"><i style="font-size:24px color: #000000;" class="fas">&#xf303;</i></a><br><a class="mb-6 btn-floating waves-effect waves-light brown darken-4" href="'.$deleteHref.'" title="Edit"><i class="fa fa-trash" aria-hidden="true" style="color:#bd251f;"></i></a>';
 
                 $image="";
                 
@@ -143,16 +151,16 @@ class CompanyController extends Controller
 
                 
 
-                $obj_json_result->data[$key]->id                   = base64_encode($data->id);
-                $obj_json_result->data[$key]->name                 = $data->name ?? '';
-                $obj_json_result->data[$key]->email                = $data->email ?? '';
-                $obj_json_result->data[$key]->website              = $data->website ?? '';
-                $obj_json_result->data[$key]->logo                 = $image ;
-                $obj_json_result->data[$key]->status_btn           = $status_btn;
-                $obj_json_result->data[$key]->action_btn           = $action_btn;
+                $objJsonResult->data[$key]->id                   = base64_encode($data->id);
+                $objJsonResult->data[$key]->name                 = $data->name ?? '';
+                $objJsonResult->data[$key]->email                = $data->email ?? '';
+                $objJsonResult->data[$key]->website              = $data->website ?? '';
+                $objJsonResult->data[$key]->logo                 = $image ;
+                $objJsonResult->data[$key]->statusBtn           = $statusBtn;
+                $objJsonResult->data[$key]->actionBtn           = $actionBtn;
             }
         }
-        return response()->json($obj_json_result);
+        return response()->json($objJsonResult);
     }
     //To Create Company of Records  
 
@@ -313,9 +321,9 @@ class CompanyController extends Controller
                 {
                     $arr_data['logo'] = $file_name;
 
-                        if (isset($obj_data->logo) && $obj_data->logo!="") 
+                        if (isset($objData->logo) && $objData->logo!="") 
                         {
-                        $path = $this->logo_image_base_img_path .'/'.$obj_data->logo;
+                        $path = $this->logo_image_base_img_path .'/'.$objData->logo;
 
                         if(file_exists($path))
                         {
@@ -358,14 +366,19 @@ class CompanyController extends Controller
        
         $image_path = $this->logo_image_base_img_path .'/'. $employee->logo;
 
+        if(isset($employee->logo)){
+       
         if (File::exists($image_path)) {
         
             unlink($image_path);
         }
         
+    }
         $employee->delete();
 
         return back()->with('success','Record deleted Successfully');
+
+
        
     }
      //To Activate Company of Records  
@@ -384,7 +397,7 @@ class CompanyController extends Controller
         return redirect()->back();
     }
 
-    //To Activate Employee of Records 
+    //To Activate Company of Records 
     public function active($enc_id){
 
         $id         = base64_decode($enc_id);
@@ -400,6 +413,29 @@ class CompanyController extends Controller
         return redirect()->back();
     }
 
+   //To Import Company of Records 
 
+    public function import (Request $request){
+        $arrRules = [];
+        $arrRules['selectFile'] ='required|mimes:xls,xlsx';
+    
+    
+        $validator = Validator::make($request->all(),$arrRules);
+        if($validator->fails()){
+        return Redirect::back()->withErrors($validator);
+        }
+
+        $test=Excel::import(new CompanyImport,request()->file('selectFile'));
+          
+        return back();
+    
+    }
+
+    public function export(Request $request) 
+    {
+        // dd($request->all());
+        $arrformData = $request->all();
+        return Excel::download( new CompanyExport($arrformData), 'company.xlsx' );
+    }
 
 }

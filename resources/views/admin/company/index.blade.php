@@ -32,41 +32,72 @@
                     <div class="card-box table-responsive">
                         <h4 class="m-t-0 header-title"><b></b></h4>
                         @include('layouts.flash-message')
+                        <form method="post" enctype="multipart/form-data" action="{{ $moduleUrlPath}}/importExcel"
+                            data-parsley-validate>
+                            {{ csrf_field() }}
+                            <div class="form-group">
+                                <table class="table">
+                                    <tr>
+                                        <td width="40%" align="right"><label>Select File for Upload</label></td>
+                                        <td width="30">
+                                            <input type="file" name="selectFile"
+                                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                                required
+                                                data-parsley-required-message='<p style="color:red;">Only Accept .xls, .xslx Format files</p>' />
+                                        </td>
+                                        <td width="30%" align="left">
+                                            <input type="submit" name="upload" class="btn btn-primary" value="Upload">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="40%" align="right"></td>
 
-                        <table id="ajax-datatable" class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th><label><input type="checkbox" class="filled-in"
-                                                id="selectall" /><span></span></label>Id</th>
-                                    <th> Company Name
-                                        <input type="text" name="q_name" placeholder="Search"
-                                            class="search-block-new-table column_filter" />
-                                    </th>
-                                    <th> Email
-                                        <input type="text" name="q_email" placeholder="Search"
-                                            class="search-block-new-table column_filter" />
-                                    </th>
-                                    <th> logo </th>
-                                    <th> website
-                                        <input type="text" name="q_website" placeholder="Search"
-                                            class="search-block-new-table column_filter" />
-                                    </th>
-                                    <th><span class="datatable_filter">Status</span>
-                                        <select class="search-block-new-table column_filter" id="q_status"
-                                            name="q_status">
-                                            <option value="">Select</option>
-                                            <option value="1">Active</option>
-                                            <option value="0">DeActive</option>
-                                        </select>
-                                    </th>
-                                </tr>
-                            </thead>
+                                        <td width="30%" align="left"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </form>
+                        <form action="{{$moduleUrlPath}}/exportExcel" method="POST" id="export_form">
+                            {{ csrf_field() }}
+                            <table id="ajax-datatable" class="table table-bordered">
+                                <!-- <a class="btn btn-primary" href="{{ $moduleUrlPath}}/exportExcel">ExportCompany
+                                Data</a><br><br> -->
+                                <input type="button" id="btn_export_csv" value="Export CSV"
+                                    class="btn btn-primary"><br><br>
+                                <thead>
+                                    <tr>
+                                        <th><label><input type="checkbox" class="filled-in"
+                                                    id="selectall" /><span></span></label>Id</th>
+                                        <th> Company Name
+                                            <input type="text" name="q_name" placeholder="Search"
+                                                class="search-block-new-table column_filter" />
+                                        </th>
+                                        <th> Email
+                                            <input type="text" name="q_email" placeholder="Search"
+                                                class="search-block-new-table column_filter" />
+                                        </th>
+                                        <th> logo </th>
+                                        <th> website
+                                            <input type="text" name="q_website" placeholder="Search"
+                                                class="search-block-new-table column_filter" />
+                                        </th>
+                                        <th><span class="datatable_filter">Status</span>
+                                            <select class="search-block-new-table column_filter" id="q_status"
+                                                name="q_status">
+                                                <option value="">Select</option>
+                                                <option value="1">Active</option>
+                                                <option value="0">DeActive</option>
+                                            </select>
+                                        </th>
+                                    </tr>
+                                </thead>
 
 
-                            <tbody>
+                                <tbody>
 
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
             </div> <!-- end row -->
@@ -98,7 +129,7 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: "{{ $moduleUrlPath}}/load_data",
+            url: "{{ $moduleUrlPath}}/loadData",
             data: function(e) {
                 e["column_filter[q_name]"] = $("input[name='q_name']").val(),
                     e["column_filter[q_email]"] = $("input[name='q_email']").val(),
@@ -136,14 +167,14 @@ $(document).ready(function() {
 
             {
                 render: function(data, type, row, meta) {
-                    return row.status_btn;
+                    return row.statusBtn;
                 },
                 orderable: false,
                 searchable: true
             },
             {
                 render: function(data, type, row, meta) {
-                    return row.action_btn;
+                    return row.actionBtn;
                 },
                 orderable: false,
                 searchable: false
@@ -157,6 +188,11 @@ $("input.column_filter").on("keyup", function() {
 });
 $("select.column_filter").on("change ", function() {
     filterData()
+});
+
+$("#btn_export_csv").click(function() {
+
+    $('#export_form').submit();
 });
 </script>
 
