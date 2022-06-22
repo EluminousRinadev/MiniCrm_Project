@@ -28,9 +28,9 @@ Route::get('/clear_cache', function() {
 
 Route::get('/admin',[App\Http\Controllers\Admin\AuthController::class, 'login'])->name('login');
 
-Route::get('stripe', [App\Http\Controllers\Front\StripePaymentController::class, 'stripe']);
-Route::post('stripe',[App\Http\Controllers\Front\StripePaymentController::class, 'stripePost'])->name('stripe.post');
 
+Route::get('checkout',[App\Http\Controllers\Front\CheckoutController::class, 'checkout']);
+Route::post('checkout',[App\Http\Controllers\Front\CheckoutController::class, 'afterpayment'])->name('checkout.credit-card');
 
 Route::get('logout',[App\Http\Controllers\Admin\AuthController::class, 'logout']);
 
@@ -50,4 +50,5 @@ Route::resource('permissions', 'CompanyController');
 
             });
 
-include_once(base_path().'/routes/admin/admin.php');            
+include_once(base_path().'/routes/admin/admin.php');  
+include_once(base_path().'/routes/front/front.php');                      
